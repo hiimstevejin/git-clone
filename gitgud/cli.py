@@ -1,4 +1,7 @@
 import argparse
+import os
+
+from . import data
 
 
 def main():
@@ -12,10 +15,15 @@ def parse_args():
     commands = parser.add_subparsers(dest="command")
     commands.required = True
 
-    init_parser = commands.add_parser('init')
-    init_parser.set_defaults (func=init)
+    init_parser = commands.add_parser("init")
+    init_parser.set_defaults(func=init)
 
     return parser.parse_args()
 
-def init (args):
-      print ('Hello, World !')
+
+def init(args):
+    # print ('Hello, World !')
+    data.init()
+    print(
+        f"Initialized empty gitgud repo in {os.getcwd()}/{data.GIT_DIR} time to gitgud"
+    )
