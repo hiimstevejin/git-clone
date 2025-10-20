@@ -4,16 +4,25 @@ from . import data
 
 
 def write_tree(directory="."):
+    entries = []
     with os.scandir(directory) as it:
         for entry in it:
             full = f"{directory}/{entry.name}"
+            # if it's a .gitgud, ignore and show recursively
             if is_ignored(full):
                 continue
             if entry.is_file(follow_symlinks=False):
-                # TODO write the file to object store
-                print(full)
+                type_ = "blob"
+                with open(full, "rb") as f:
+                    oid = data.hash_object(f.read())
+            # if current is a directory, recursively show files inside
             elif entry.is_dir(follow_symlinks=False):
-                write_tree(full)
+                type = "tree"
+                oid = write_tree(full)
+            entries.append((entry.name, oid, type_))
+    tree = "".join(f"{type_}{oid}{name}\n" for name, oid, type_ in sorted(entries))
+
+    return data.hash_object(tree.encode(), "tree")
 
 
 def is_ignored(path):
